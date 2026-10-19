@@ -1,0 +1,10 @@
+# Ambiente virtual
+.venv/
+
+# Banco de dados local
+retain.db
+instance/retain.db
+
+# Cache do Python
+__pycache__/
+*.py[cod]
