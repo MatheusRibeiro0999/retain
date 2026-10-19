@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         MENU LATERAL
+         ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>Retain</h1>
+
+            <span>
+                Gestão de Retenção
+            </span>
+
+        </div>
+
+
+        <nav>
+
+            <a href="/" class="active">
+                Dashboard
+            </a>
+
+            <a href="/operators">
+                Operadores
+            </a>
+
+            <a href="/records">
+                Histórico
+            </a>
+
+            <a href="/reports">
+                Relatórios
+            </a>
+
+            <a href="/settings">
+                Configurações
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- =========================
+         CONTEÚDO
+         ========================= -->
+
+    <main class="main">
+
+
+        <!-- CABEÇALHO -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h2>
+                    Dashboard
+                </h2>
+
+                <p>
+                    Visão geral da operação
+                </p>
+
+            </div>
+
+
+            <<form method="GET" action="/" class="date-filter">
+
+                <label for="dashboard-date">
+                    <span>Data de referência</span>
+                </label>
+
+                <input
+                    type="date"
+                    id="dashboard-date"
+                    name="data"
+                    value="{{ today.isoformat() }}"
+                    onchange="this.form.submit()"
+                >
+
+            </form>
+
+        </header>
+
+
+
+        <!-- =========================
+             INDICADORES
+             ========================= -->
+
+        <section class="cards">
+
+
+            <div class="card">
+
+                <span>
+                    Ligações atendidas
+                </span>
+
+                <strong>
+                    {{ total_calls }}
+                </strong>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <span>
+                    Cancelamentos
+                </span>
+
+                <strong>
+                    {{ total_cancellations }}
+                </strong>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <span>
+                    % Retenção
+                </span>
+
+                <strong>
+                    {{ "%.1f"|format(retention_percentage) }}%
+                </strong>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <span>
+                    Meta de retenção
+                </span>
+
+                <strong>
+                    {{ "%.1f"|format(retention_target) }}%
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             EQUIPES
+             ========================= -->
+
+        <section class="content-grid">
+
+
+            <!-- MANHÃ -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>
+                        ☀️ Equipe Manhã
+                    </h3>
+
+                    <p>
+                        Resultado do dia
+                    </p>
+
+                </div>
+
+
+                <div class="team">
+
+                    <div>
+
+                        <strong>
+                            Retenção
+                        </strong>
+
+                        <span>
+                            {{ teams["Manhã"]["calls"] }}
+                            ligações
+                        </span>
+
+                    </div>
+
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            teams["Manhã"]["percentage"]
+                        ) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="team">
+
+                    <div>
+
+                        <strong>
+                            Cancelamentos
+                        </strong>
+
+                    </div>
+
+                    <strong>
+                        {{ teams["Manhã"]["cancellations"] }}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- TARDE -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h3>
+                        🌙 Equipe Tarde
+                    </h3>
+
+                    <p>
+                        Resultado do dia
+                    </p>
+
+                </div>
+
+
+                <div class="team">
+
+                    <div>
+
+                        <strong>
+                            Retenção
+                        </strong>
+
+                        <span>
+                            {{ teams["Tarde"]["calls"] }}
+                            ligações
+                        </span>
+
+                    </div>
+
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            teams["Tarde"]["percentage"]
+                        ) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="team">
+
+                    <div>
+
+                        <strong>
+                            Cancelamentos
+                        </strong>
+
+                    </div>
+
+                    <strong>
+                        {{ teams["Tarde"]["cancellations"] }}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             DESEMPENHO DOS OPERADORES
+             ========================= -->
+
+        <section class="panel dashboard-panel">
+
+
+            <div class="panel-header">
+
+                <h3>
+                    Desempenho dos operadores
+                </h3>
+
+                <p>
+                    Resultado individual do dia
+                </p>
+
+            </div>
+
+
+            {% if operator_results %}
+
+
+                <div class="history-table-wrapper">
+
+
+                    <table class="history-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Operador
+                                </th>
+
+                                <th>
+                                    Equipe
+                                </th>
+
+                                <th>
+                                    Ligações
+                                </th>
+
+                                <th>
+                                    Cancelamentos
+                                </th>
+
+                                <th>
+                                    Retenção
+                                </th>
+
+                                <th>
+                                    Meta
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+
+                        <tbody>
+
+
+                            {% for operator in operator_results %}
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ operator.name }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ operator.team }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ operator.calls }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ operator.cancellations }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            {{ "%.1f"|format(
+                                                operator.percentage
+                                            ) }}%
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ "%.1f"|format(
+                                            retention_target
+                                        ) }}%
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="operator">
+
+                    <span>
+                        Nenhum lançamento realizado hoje.
+                    </span>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+                
+        <section class="panel" style="margin-top: 20px;">
+
+            <div class="panel-header">
+                <h2>Evolução da retenção</h2>
+                <p>Percentual diário comparado à meta configurada.</p>
+            </div>
+
+            <div style="position: relative; height: 320px; width: 100%;">
+                <canvas id="retentionChart"></canvas>
+            </div>
+
+        </section>
+
+        
+        <section class="panel" style="margin-top: 20px;">
+
+            <div class="panel-header">
+                <h2>Comparativo entre equipes</h2>
+                <p>Ligações atendidas e cancelamentos por equipe no dia.</p>
+            </div>
+
+            <div style="position: relative; height: 320px; width: 100%;">
+                <canvas id="teamComparisonChart"></canvas>
+            </div>
+
+            <div class="content-grid" style="margin-top: 20px;">
+
+                {% for team_name in ["Manhã", "Tarde"] %}
+
+                    {% set team = teams[team_name] %}
+
+                    <div class="card">
+
+                        <span>Retenção — {{ team_name }}</span>
+
+                        <strong>
+                            {{ "%.1f"|format(team.percentage) }}%
+                        </strong>
+
+                        {% if team.percentage >= retention_target %}
+                            <p style="color: #10a37f; margin-top: 10px;">
+                                ✓ Meta atingida
+                            </p>
+                        {% else %}
+                            <p style="color: #f0b429; margin-top: 10px;">
+                                Meta não atingida
+                            </p>
+                        {% endif %}
+
+                        <span style="margin-top: 12px;">
+                            Meta: {{ "%.1f"|format(retention_target) }}%
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <section class="panel" style="margin-top: 20px;">
+
+            <div class="panel-header">
+                <h2>Ranking de operadores</h2>
+                <p>Desempenho diário ordenado pelo percentual de retenção.</p>
+            </div>
+
+            {% if operator_results %}
+
+                {% for operator in operator_results %}
+
+                    <div style="
+                        padding: 16px 0;
+                        border-bottom: 1px solid #565869;
+                    ">
+
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 15px;
+                            margin-bottom: 10px;
+                        ">
+
+                            <div>
+                                <strong style="color: #ececf1;">
+                                    {{ loop.index }}. {{ operator.name }}
+                                </strong>
+
+                                <p style="
+                                    color: #acacbe;
+                                    font-size: 13px;
+                                    margin-top: 5px;
+                                ">
+                                    Equipe {{ operator.team }}
+                                    · {{ operator.calls }} ligações
+                                </p>
+                            </div>
+
+                            <div style="text-align: right;">
+
+                                <strong style="
+                                    color: {% if operator.percentage >= retention_target %}#10a37f{% else %}#f0b429{% endif %};
+                                    font-size: 20px;
+                                ">
+                                    {{ "%.1f"|format(operator.percentage) }}%
+                                </strong>
+
+                                <p style="
+                                    color: #acacbe;
+                                    font-size: 12px;
+                                    margin-top: 4px;
+                                ">
+                                    {% if operator.percentage >= retention_target %}
+                                        Meta atingida
+                                    {% else %}
+                                        Abaixo da meta
+                                    {% endif %}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div style="
+                            width: 100%;
+                            height: 8px;
+                            background: #343541;
+                            border-radius: 10px;
+                            overflow: hidden;
+                        ">
+
+                            <div style="
+                                width: {{ [operator.percentage, 100]|min }}%;
+                                height: 100%;
+                                background: {% if operator.percentage >= retention_target %}#10a37f{% else %}#f0b429{% endif %};
+                                border-radius: 10px;
+                            "></div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p style="color: #acacbe;">
+                    Nenhum operador cadastrado para exibição.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+        <!-- =========================
+             EVOLUÇÃO
+             ========================= -->
+
+        <section class="panel dashboard-panel">
+
+
+            <div class="panel-header">
+
+                <h3>
+                    Evolução da retenção
+                </h3>
+
+                <p>
+                    Histórico dos resultados registrados
+                </p>
+
+            </div>
+
+
+            {% if evolution %}
+
+
+                <div class="history-table-wrapper">
+
+
+                    <table class="history-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Data
+                                </th>
+
+                                <th>
+                                    Ligações
+                                </th>
+
+                                <th>
+                                    % Retenção
+                                </th>
+
+                                <th>
+                                    Meta
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for item in evolution %}
+
+
+                                <tr>
+
+                                    <td>
+                                        {{ item.date.strftime('%d/%m/%Y') }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ item.calls }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            {{ "%.1f"|format(
+                                                item.percentage
+                                            ) }}%
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ "%.1f"|format(
+                                            retention_target
+                                        ) }}%
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="operator">
+
+                    <span>
+                        Ainda não existem dados históricos.
+                    </span>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+    </main>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // GRÁFICO DE EVOLUÇÃO DA RETENÇÃO
+        const chartLabels = {{ chart_dates | tojson }};
+        const retentionData = {{ chart_percentages | tojson }};
+        const targetData = {{ chart_targets | tojson }};
+
+        const chartCanvas = document.getElementById("retentionChart");
+
+        if (chartCanvas) {
+            new Chart(chartCanvas, {
+                type: "line",
+
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: "Retenção (%)",
+                            data: retentionData,
+                            borderColor: "#10a37f",
+                            backgroundColor: "rgba(16, 163, 127, 0.15)",
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: "Meta (%)",
+                            data: targetData,
+                            borderColor: "#f0b429",
+                            backgroundColor: "transparent",
+                            borderWidth: 2,
+                            borderDash: [6, 5],
+                            pointRadius: 0,
+                            tension: 0
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        intersect: false,
+                        mode: "index"
+                    },
+
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "#ececf1",
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ": "
+                                        + context.parsed.y.toFixed(1) + "%";
+                                }
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#acacbe"
+                            },
+                            grid: {
+                                color: "rgba(172, 172, 190, 0.08)"
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: 100,
+                            ticks: {
+                                color: "#acacbe",
+                                callback: function(value) {
+                                    return value + "%";
+                                }
+                            },
+                            grid: {
+                                color: "rgba(172, 172, 190, 0.12)"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // COMPARATIVO ENTRE EQUIPES
+        const teamCalls = [
+            {{ teams["Manhã"]["calls"] | tojson }},
+            {{ teams["Tarde"]["calls"] | tojson }}
+        ];
+
+        const teamCancellations = [
+            {{ teams["Manhã"]["cancellations"] | tojson }},
+            {{ teams["Tarde"]["cancellations"] | tojson }}
+        ];
+
+        const teamChartCanvas = document.getElementById(
+            "teamComparisonChart"
+        );
+
+        if (teamChartCanvas) {
+            new Chart(teamChartCanvas, {
+                type: "bar",
+
+                data: {
+                    labels: ["Manhã", "Tarde"],
+
+                    datasets: [
+                        {
+                            label: "Ligações atendidas",
+                            data: teamCalls,
+                            backgroundColor: "#10a37f",
+                            borderRadius: 6
+                        },
+                        {
+                            label: "Cancelamentos",
+                            data: teamCancellations,
+                            backgroundColor: "#f0b429",
+                            borderRadius: 6
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "#ececf1",
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+
+                        tooltip: {
+                            mode: "index",
+                            intersect: false
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#acacbe"
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: "#acacbe",
+                                precision: 0
+                            },
+                            grid: {
+                                color: "rgba(172, 172, 190, 0.12)"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+
+
+</body>
+
+</html>

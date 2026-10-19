@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Operadores</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h1>Retain</h1>
+            <span>Gestão de Retenção</span>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/operators" class="active">Operadores</a>
+            <a href="/records">Histórico</a>
+            <a href="/reports">Relatórios</a>
+             <a href="/settings">Configurações</a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h2>Operadores</h2>
+                <p>Gerencie os operadores da operação</p>
+            </div>
+
+            <a href="/operators/new" class="button">
+            + Novo operador
+            </a>
+
+        </header>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h3>Lista de operadores</h3>
+            </div>
+
+           {% for operator in operators %}
+
+        <div class="operator">
+            <a href="/operators/{{ operator.id }}">
+                {{ operator.name }}
+            </a>
+
+            <span>{{ operator.team }}</span>
+
+            <strong>Ativo</strong>
+        </div>
+
+        {% else %}
+
+<div class="operator">
+    <span>Nenhum operador cadastrado.</span>
+</div>
+
+{% endfor %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

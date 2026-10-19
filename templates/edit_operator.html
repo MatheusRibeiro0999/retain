@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Editar operador</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h1>Retain</h1>
+            <span>Gestão de Retenção</span>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/operators" class="active">Operadores</a>
+            <a href="/records">Histórico</a>
+            <a href="/reports">Relatórios</a>
+            <a href="/settings">Configurações</a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <div class="topbar">
+
+            <div>
+                <h1>Editar operador</h1>
+                <p>Atualize os dados do operador</p>
+            </div>
+
+            <a
+                href="/operators/{{ operator.id }}"
+                class="btn-secondary"
+            >
+                Voltar
+            </a>
+
+        </div>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+                <h2>{{ operator.name }}</h2>
+                <p>Altere os dados abaixo e salve as modificações.</p>
+            </div>
+
+
+            <form method="POST">
+
+                <div class="form-group">
+
+                    <label for="name">
+                        Nome do operador
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ operator.name }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="team">
+                        Equipe
+                    </label>
+
+                    <select
+                        id="team"
+                        name="team"
+                        required
+                    >
+
+                        <option
+                            value="Manhã"
+                            {% if operator.team == "Manhã" %}selected{% endif %}
+                        >
+                            Manhã
+                        </option>
+
+                        <option
+                            value="Tarde"
+                            {% if operator.team == "Tarde" %}selected{% endif %}
+                        >
+                            Tarde
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="active">
+                        Status
+                    </label>
+
+                    <select
+                        id="active"
+                        name="active"
+                        required
+                    >
+
+                        <option
+                            value="true"
+                            {% if operator.active %}selected{% endif %}
+                        >
+                            Ativo
+                        </option>
+
+                        <option
+                            value="false"
+                            {% if not operator.active %}selected{% endif %}
+                        >
+                            Inativo
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="/operators/{{ operator.id }}"
+                        class="btn-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                    >
+                        Salvar alterações
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

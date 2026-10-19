@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Editar lançamento</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h1>Retain</h1>
+            <span>Gestão de Retenção</span>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="/operators" class="active">Operadores</a>
+            <a href="/records">Histórico</a>
+            <a href="/reports">Relatórios</a>
+             <a href="/settings">Configurações</a>
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h2>Editar lançamento</h2>
+                <p>
+                    {{ operator.name }} — Equipe {{ operator.team }}
+                </p>
+            </div>
+
+            <a href="/operators/{{ operator.id }}" class="button">
+                ← Voltar
+            </a>
+
+        </header>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h3>Dados do lançamento</h3>
+                    <p>
+                        Corrija as informações deste dia.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form method="POST"
+                  action="/operators/{{ operator.id }}/record/{{ record.id }}/edit">
+
+
+                <div class="form-group">
+
+                    <label for="date">
+                        Data
+                    </label>
+
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        value="{{ record.date.isoformat() }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="calls">
+                        Ligações atendidas
+                    </label>
+
+                    <input
+                        type="number"
+                        id="calls"
+                        name="calls"
+                        min="0"
+                        value="{{ record.calls_handled }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="cancellations">
+                        Cancelamentos
+                    </label>
+
+                    <input
+                        type="number"
+                        id="cancellations"
+                        name="cancellations"
+                        min="0"
+                        value="{{ record.cancellations }}"
+                        required
+                    >
+
+                </div>
+                
+
+                <div class="form-actions">
+
+                    <a
+                        href="/operators/{{ operator.id }}"
+                        class="btn-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                    >
+                        Salvar alterações
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

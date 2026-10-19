@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Relatórios</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>Retain</h1>
+
+            <span>
+                Gestão de Retenção
+            </span>
+
+        </div>
+
+
+        <nav>
+
+            <a href="/">
+                Dashboard
+            </a>
+
+            <a href="/operators">
+                Operadores
+            </a>
+
+            <a href="/records">
+                Histórico
+            </a>
+
+            <a href="/reports" class="active">
+                Relatórios
+            </a>
+
+            <a href="/settings">
+                Configurações
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <h2>
+                    Relatórios
+                </h2>
+
+                <p>
+                    Análise dos resultados da operação.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!--==========================
+            FILTROS
+        ==============================-->
+
+        <section class="panel" style="margin-bottom: 20px;">
+            <div class="panel-header">
+                <h2>Período do relatório</h2>
+                <p>Selecione as datas para consultar os lançamentos.</p>
+            </div>
+
+            <form method="GET" action="/reports"
+                style="display: flex; gap: 16px; align-items: end; flex-wrap: wrap;">
+
+                <div class="form-group">
+                    <label for="data_inicio">Data inicial</label>
+                    <input
+                        type="date"
+                        id="data_inicio"
+                        name="data_inicio"
+                        value="{{ start_date.isoformat() }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="data_fim">Data final</label>
+                    <input
+                        type="date"
+                        id="data_fim"
+                        name="data_fim"
+                        value="{{ end_date.isoformat() }}"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn">
+                    Filtrar período
+                </button>
+            </form>
+            <a
+                href="{{ url_for('export_report_pdf', data_inicio=start_date.isoformat(), data_fim=end_date.isoformat()) }}"
+                class="btn pdf-export-btn"
+            >
+                <span aria-hidden="true">↓</span>
+                Exportar PDF
+            </a>
+        </section>
+
+        <!-- INDICADORES CONSOLIDADOS -->
+        <div class="content-grid" style="margin-bottom: 20px;">
+
+            <div class="card">
+                <span>Total de ligações atendidas</span>
+                <strong>{{ total_calls }}</strong>
+                <span>Período selecionado</span>
+            </div>
+
+            <div class="card">
+                <span>Total de cancelamentos</span>
+                <strong>{{ total_cancellations }}</strong>
+                <span>Período selecionado</span>
+            </div>
+
+            <div class="card">
+                <span>Total de retenções</span>
+                <strong>{{ total_retentions }}</strong>
+                <span>Ligações menos cancelamentos</span>
+            </div>
+
+            <div class="card">
+                <span>Percentual de retenção</span>
+
+                <strong style="color: {% if retention_percentage >= retention_target %}#10a37f{% else %}#f0b429{% endif %};">
+                    {{ "%.1f"|format(retention_percentage) }}%
+                </strong>
+
+                {% if retention_percentage >= retention_target %}
+                    <span style="color: #10a37f;">
+                        ✓ Meta atingida
+                    </span>
+                {% else %}
+                    <span style="color: #f0b429;">
+                        Meta não atingida
+                    </span>
+                {% endif %}
+
+                <span>
+                    Meta: {{ "%.1f"|format(retention_target) }}%
+                </span>
+            </div>
+
+        </div>
+
+        <!-- COMPARATIVO ENTRE EQUIPES-->
+        <section class="panel" style="margin-bottom: 20px;">
+
+            <div class="panel-header">
+                <h2>Comparativo entre equipes</h2>
+                <p>Desempenho consolidado no período selecionado.</p>
+            </div>
+
+            <div class="content-grid">
+
+                {% for team_name in ["Manhã", "Tarde"] %}
+                    {% set team = team_results[team_name] %}
+
+                    <div class="card">
+
+                        <span>Equipe {{ team_name }}</span>
+
+                        <strong style="color: {% if team.percentage >= retention_target %}#10a37f{% else %}#f0b429{% endif %};">
+                            {{ "%.1f"|format(team.percentage) }}%
+                        </strong>
+
+                        {% if team.percentage >= retention_target %}
+                            <p style="color: #10a37f; margin-top: 8px;">
+                                ✓ Meta atingida
+                            </p>
+                        {% else %}
+                            <p style="color: #f0b429; margin-top: 8px;">
+                                Meta não atingida
+                            </p>
+                        {% endif %}
+
+                        <div style="margin-top: 18px; display: grid; gap: 12px;">
+
+                            <div>
+                                <span>Ligações atendidas</span>
+                                <strong style="display: block;">
+                                    {{ team.calls }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Cancelamentos</span>
+                                <strong style="display: block;">
+                                    {{ team.cancellations }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Retenções</span>
+                                <strong style="display: block;">
+                                    {{ team.retentions }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Meta configurada</span>
+                                <strong style="display: block;">
+                                    {{ "%.1f"|format(retention_target) }}%
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- DESEMPENHO INDIVIDUAL -->
+        <section class="panel" style="margin-bottom: 20px;">
+
+            <div class="panel-header">
+                <h2>Desempenho por operador</h2>
+                <p>
+                    Resultados individuais no período selecionado,
+                    ordenados pelo percentual de retenção.
+                </p>
+            </div>
+
+            {% if operator_results %}
+
+                <div style="overflow-x: auto;">
+                    <table class="operator-report-table">
+                        <thead>
+                            <tr>
+                                <th class="col-operator">Operador</th>
+                                <th>Equipe</th>
+                                <th>Status</th>
+                                <th>Ligações</th>
+                                <th>Cancelamentos</th>
+                                <th>Retenções</th>
+                                <th>Retenção</th>
+                                <th>Meta</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for operator in operator_results %}
+                                <tr>
+                                    <td>{{ operator.name }}</td>
+
+                                    <td>{{ operator.team }}</td>
+
+                                    <td>
+                                        {% if operator.active %}
+                                            Ativo
+                                        {% else %}
+                                            Inativo
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ operator.calls }}</td>
+
+                                    <td>{{ operator.cancellations }}</td>
+
+                                    <td>{{ operator.retentions }}</td>
+
+                                    <td>
+                                        <strong style="color: {% if operator.percentage >= retention_target and operator.calls > 0 %}#10a37f{% else %}#f0b429{% endif %};">
+                                            {{ "%.1f"|format(operator.percentage) }}%
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {% if operator.calls == 0 %}
+                                            Sem dados
+                                        {% elif operator.percentage >= retention_target %}
+                                            <span style="color: #10a37f;">
+                                                ✓ Atingida
+                                            </span>
+                                        {% else %}
+                                            <span style="color: #f0b429;">
+                                                Abaixo da meta
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+                <p>Nenhum operador cadastrado.</p>
+            {% endif %}
+
+        </section>
+
+        <!-- =========================
+             RESUMO
+             ========================= -->
+
+        <section class="cards">
+
+
+            <div class="card">
+
+                <span>
+                    lançamentos
+                </span>
+
+                <strong>
+                    {{ records|length }}
+                </strong>
+
+            </div>
+
+
+            <div class="card">
+
+                <span>
+                    Meta de retenção
+                </span>
+
+                <strong>
+                    {{ "%.1f"|format(retention_target) }}%
+                </strong>
+
+            </div>
+
+
+            <div class="card">
+
+                <span>
+                    Ligações
+                </span>
+
+                <strong>
+
+                    {{ records|sum(attribute='calls_handled') }}
+
+                </strong>
+
+            </div>
+
+
+            <div class="card">
+
+                <span>
+                    Cancelamentos
+                </span>
+
+                <strong>
+
+                    {{ records|sum(attribute='cancellations') }}
+
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =========================
+             TABELA
+             ========================= -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Relatório geral
+                </h3>
+
+                <p>
+                    Consolidado dos lançamentos registrados.
+                </p>
+
+            </div>
+
+
+            {% if records %}
+
+                <div class="history-table-wrapper">
+
+                    <table class="history-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Data
+                                </th>
+
+                                <th>
+                                    Operador
+                                </th>
+
+                                <th>
+                                    Equipe
+                                </th>
+
+                                <th>
+                                    Ligações
+                                </th>
+
+                                <th>
+                                    Cancelamentos
+                                </th>
+
+                                <th>
+                                    Retenção
+                                </th>
+
+                                <th>
+                                    Meta
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for record in records %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ record.date.strftime('%d/%m/%Y') }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.operator.name }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.operator.team }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.calls_handled }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.cancellations }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+
+                                            {{ "%.1f"|format(
+                                                (record.retentions / record.calls_handled * 100)
+                                                if record.calls_handled > 0
+                                                else 0
+                                            ) }}%
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ "%.1f"|format(retention_target) }}%
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="operator">
+
+                    <span>
+                        Nenhum dado disponível para relatório.
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

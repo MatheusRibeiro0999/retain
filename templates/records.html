@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Retain - Histórico</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h1>Retain</h1>
+            <span>Gestão de Retenção</span>
+        </div>
+
+        <nav>
+
+            <a href="/">
+                Dashboard
+            </a>
+
+            <a href="/operators">
+                Operadores
+            </a>
+
+            <a href="/records" class="active">
+                Histórico
+            </a>
+
+            <a href="/reports">
+                Relatórios
+            </a>
+
+             <a href="/settings">
+                Configurações
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h2>Histórico</h2>
+
+                <p>
+                    Consulte os resultados registrados na operação.
+                </p>
+            </div>
+
+        </header>
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h3>
+                        Histórico geral
+                    </h3>
+
+                    <p>
+                        Todos os lançamentos realizados pelos operadores.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if records %}
+
+                <div class="history-table-wrapper">
+
+                    <table class="history-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Data
+                                </th>
+
+                                <th>
+                                    Operador
+                                </th>
+
+                                <th>
+                                    Equipe
+                                </th>
+
+                                <th>
+                                    Ligações
+                                </th>
+
+                                <th>
+                                    Cancelamentos
+                                </th>
+
+                                <th>
+                                    % Retenção
+                                </th>
+
+                                <th>
+                                    Meta
+                                </th>
+
+                                <th>
+                                    Ação
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for record in records %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ record.date.strftime('%d/%m/%Y') }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.operator.name }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.operator.team }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.calls_handled }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ record.cancellations }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            {{ "%.1f"|format(
+                                                (record.retentions / record.calls_handled * 100)
+                                                if record.calls_handled > 0
+                                                else 0
+                                            ) }}%
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        —
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="/operators/{{ record.operator.id }}"
+                                            class="btn-secondary"
+                                        >
+                                            Ver operador
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="operator">
+
+                    <span>
+                        Nenhum lançamento realizado ainda.
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
